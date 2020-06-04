@@ -1,12 +1,12 @@
 pragma solidity >=0.5.0 <=0.7.0;
 
-import "funding.sol";
+import "Funding.sol";
 
 
 contract InsuredFunding is Funding {
     struct Request {
         uint256 startTime;
-        uint256 endTime;
+        uint256 endTime;F
         uint256 amount;
         bool processed;
         uint256 numVote;
