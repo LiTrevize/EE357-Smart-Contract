@@ -1,4 +1,5 @@
-pragma solidity >=0.5.0;
+pragma solidity >=0.5.0 <=0.7.0;
+
 
 contract Funding {
     address manager;
@@ -8,7 +9,8 @@ contract Funding {
     uint256 public startTime;
     uint256 public endTime;
 
-    mapping(address => uint256) public backers;
+    address[] public backers;
+    mapping(address => uint256) public accounts;
     uint256 public raisedMoney = 0;
 
     constructor(
@@ -43,22 +45,33 @@ contract Funding {
     }
 
     function support() public payable onGoing {
-        backers[msg.sender] += msg.value;
+        if (accounts[msg.sender] == 0) backers.push(msg.sender);
+        accounts[msg.sender] += msg.value;
         raisedMoney += msg.value;
     }
 
     function getMySupport() public view returns (uint256 amount) {
-        return backers[msg.sender];
+        return accounts[msg.sender];
+    }
+
+    function removeBacker(address backer) internal {
+        for (uint256 i = 0; i < backers.length; i++) {
+            if (backers[i] == backer) {
+                delete backers[i];
+                break;
+            }
+        }
     }
 
     function retract(uint256 amount) public onGoing {
-        if (amount > 0 && amount <= backers[msg.sender]) {
+        if (amount > 0 && amount <= accounts[msg.sender]) {
             msg.sender.transfer(amount);
             raisedMoney -= amount;
-            if (backers[msg.sender] > amount) {
-                backers[msg.sender] -= amount;
+            if (accounts[msg.sender] > amount) {
+                accounts[msg.sender] -= amount;
             } else {
-                delete backers[msg.sender];
+                delete accounts[msg.sender];
+                removeBacker(msg.sender);
             }
         }
     }
