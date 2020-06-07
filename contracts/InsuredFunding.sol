@@ -1,4 +1,4 @@
-pragma solidity >=0.5.0 <=0.7.0;
+pragma solidity ^0.4.0;
 
 import "Funding.sol";
 
@@ -6,7 +6,7 @@ import "Funding.sol";
 contract InsuredFunding is Funding {
     struct Request {
         uint256 startTime;
-        uint256 endTime;F
+        uint256 endTime;
         uint256 amount;
         bool processed;
         uint256 numVote;
@@ -39,7 +39,7 @@ contract InsuredFunding is Funding {
         _;
     }
 
-    modifier pendingOp {
+    modifier pendingResult {
         require(
             requests.length > 0 && requests[requests.length - 1].endTime < now,
             "Vote has not finished."
@@ -78,26 +78,31 @@ contract InsuredFunding is Funding {
         }
     }
 
-    function processRequest() public onlyManager closed pendingOp {
+    /**
+     * The fund manager call the function to complete the request
+     * If successful, the manager gets the desired money
+     * Otherwise, the funding ended,
+     * all the remaining money is returned to the backers
+     */
+    function completeReq() public onlyManager closed pendingResult {
         Request storage r = requests[requests.length - 1];
         // more vote than veto
         if (r.numVeto <= backers.length - r.numVeto) {
-            address payable addr = address(uint160(manager));
-            addr.transfer(r.amount);
+            // address payable addr = address(uint160(manager));
+            manager.transfer(r.amount);
             usedMoney += r.amount;
+            r.processed = true;
         } else {
             // funded project rejected
             // return remaining money
             uint256 remain = raisedMoney - usedMoney;
             for (uint256 i = 0; i < backers.length; i++) {
-                address payable backer = address(uint160(backers[i]));
+                // address payable backer = address(uint160(backers[i]));
+                address backer = backers[i];
                 backer.transfer((remain * accounts[backer]) / raisedMoney);
             }
+            r.processed = true;
+            selfdestruct(manager);
         }
-        r.processed = true;
     }
-
-    // function claimRequest() public onlyManager closed {
-    //
-    // }
 }

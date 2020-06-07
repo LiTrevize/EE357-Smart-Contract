@@ -1,4 +1,4 @@
-pragma solidity >=0.5.0 <=0.7.0;
+pragma solidity ^0.4.0;
 
 
 contract Funding {
@@ -9,8 +9,8 @@ contract Funding {
     uint256 public startTime;
     uint256 public endTime;
 
-    address[] public backers;
-    mapping(address => uint256) public accounts;
+    address[] public backers; // all backers address
+    mapping(address => uint256) public accounts; // backers' supported money
     uint256 public raisedMoney = 0;
 
     constructor(
@@ -31,12 +31,12 @@ contract Funding {
     }
 
     modifier onGoing {
-        require(now <= endTime, "Funding is currently closed");
+        require(now <= endTime, "Fund raising is currently closed");
         _;
     }
 
     modifier closed {
-        require(now > endTime, "Funding is currently closed");
+        require(now > endTime, "Fund raising is still ongoing");
         _;
     }
 
@@ -45,8 +45,7 @@ contract Funding {
     }
 
     function support() public payable onGoing {
-        if (accounts[msg.sender] == 0) backers.push(msg.sender);
-        accounts[msg.sender] += msg.value;
+        addBacker(msg.sender, msg.value);
         raisedMoney += msg.value;
     }
 
@@ -54,7 +53,13 @@ contract Funding {
         return accounts[msg.sender];
     }
 
+    function addBacker(address backer, uint256 share) internal {
+        if (accounts[backer] == 0) backers.push(backer);
+        accounts[backer] += share;
+    }
+
     function removeBacker(address backer) internal {
+        delete accounts[msg.sender];
         for (uint256 i = 0; i < backers.length; i++) {
             if (backers[i] == backer) {
                 delete backers[i];
@@ -70,10 +75,13 @@ contract Funding {
             if (accounts[msg.sender] > amount) {
                 accounts[msg.sender] -= amount;
             } else {
-                delete accounts[msg.sender];
                 removeBacker(msg.sender);
             }
         }
+    }
+
+    function getBalance() public view returns (uint256) {
+        return this.balance;
     }
 
     // function claimFund() public onlyManager closed {
