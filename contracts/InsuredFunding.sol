@@ -51,6 +51,9 @@ contract InsuredFunding is Funding {
         _;
     }
 
+    /**
+     * post a request to use a portion of the raised money
+     */
     function postRequest(uint256 amount, uint256 duration)
         public
         onlyManager
@@ -62,6 +65,9 @@ contract InsuredFunding is Funding {
         requests.push(r);
     }
 
+    /**
+     * backers can vote for the request
+     */
     function vote(bool agree) public openReq {
         require(accounts[msg.sender] > 0, "Only backers can vote.");
         Request storage r = requests[requests.length - 1];

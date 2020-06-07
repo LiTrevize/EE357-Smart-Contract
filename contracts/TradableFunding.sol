@@ -29,6 +29,10 @@ contract TradableFunding is InsuredFunding {
         sales[msg.sender] = Sale(amount, price);
     }
 
+    function cancelSale() public {
+        delete sales[msg.sender];
+    }
+
     function buyShare(address seller) public payable {
         require(sales[seller].amount > 0, "Invalid seller.");
         require(msg.value == sales[seller].price, "Insufficient money.");

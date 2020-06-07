@@ -44,9 +44,27 @@ contract Funding {
         description = _desc;
     }
 
+    /**
+     * support money to the funding
+     */
     function support() public payable onGoing {
         addBacker(msg.sender, msg.value);
         raisedMoney += msg.value;
+    }
+
+    /**
+     * retract money before the fund raising closed.
+     */
+    function retract(uint256 amount) public onGoing {
+        if (amount > 0 && amount <= accounts[msg.sender]) {
+            msg.sender.transfer(amount);
+            raisedMoney -= amount;
+            if (accounts[msg.sender] > amount) {
+                accounts[msg.sender] -= amount;
+            } else {
+                removeBacker(msg.sender);
+            }
+        }
     }
 
     function getMySupport() public view returns (uint256 amount) {
@@ -64,18 +82,6 @@ contract Funding {
             if (backers[i] == backer) {
                 delete backers[i];
                 break;
-            }
-        }
-    }
-
-    function retract(uint256 amount) public onGoing {
-        if (amount > 0 && amount <= accounts[msg.sender]) {
-            msg.sender.transfer(amount);
-            raisedMoney -= amount;
-            if (accounts[msg.sender] > amount) {
-                accounts[msg.sender] -= amount;
-            } else {
-                removeBacker(msg.sender);
             }
         }
     }
