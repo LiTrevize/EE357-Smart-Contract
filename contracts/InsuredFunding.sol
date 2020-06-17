@@ -2,7 +2,6 @@ pragma solidity ^0.4.0;
 
 import "Funding.sol";
 
-
 contract InsuredFunding is Funding {
     struct Request {
         uint256 startTime;
@@ -16,6 +15,7 @@ contract InsuredFunding is Funding {
     }
     Request[] public requests;
     uint256 public usedMoney = 0;
+    uint256 public minDuration = 100;
 
     constructor(
         string memory _name,
@@ -60,6 +60,7 @@ contract InsuredFunding is Funding {
         noRequest
     {
         require(amount + usedMoney <= raisedMoney, "Invalid request money");
+        require(duration >= minDuration, "ballot duration should be longer.");
         uint256 cur = now;
         Request memory r = Request(cur, cur + duration, amount, false, 0, 0);
         requests.push(r);
@@ -90,7 +91,7 @@ contract InsuredFunding is Funding {
      * Otherwise, the funding ended,
      * all the remaining money is returned to the backers
      */
-    function completeReq() public onlyManager closed pendingResult {
+    function completeReq() public closed pendingResult {
         Request storage r = requests[requests.length - 1];
         // more vote than veto
         if (r.numVeto <= backers.length - r.numVeto) {
