@@ -1,6 +1,5 @@
 pragma solidity ^0.4.0;
 
-
 contract Funding {
     address manager;
     uint256 public fundingGoal;
@@ -88,6 +87,14 @@ contract Funding {
 
     function getBalance() public view returns (uint256) {
         return this.balance;
+    }
+
+    function refund() public closed {
+        require(raisedMoney >= fundingGoal, "Enough funding has been raised.");
+        for(address backer: backers){
+            backer.transfer(accounts[backer]);
+        }
+        selfdestruct(manager);
     }
 
     // function claimFund() public onlyManager closed {
