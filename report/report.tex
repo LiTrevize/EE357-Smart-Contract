@@ -34,7 +34,7 @@
 % \newtheorem*{solution}{Solution}
 \newenvironment{solution}{\begin{proof}[Solution]\renewcommand{\qedsymbol}{}}{\end{proof}}
 
-\title{Smart Contract }
+\title{Smart Contracts: A More Interactive and\\ Risk-Manageable Crowdfunding Application}
 \author{Li Jingyu\quad 517030910318\\Liu Du\quad 517030910346}
 % \date{517030910318}
 \begin{document}
@@ -46,17 +46,31 @@
 \tableofcontents
 
 \section{Background and Motivation}
+A block chain is a distributed transaction database shared by all nodes participating in a system based on a certain protocol. It is safe, anonymous and trusted. Ethereum is an implementation and generalization of block chain. Besides transaction support, Ethereum is also a programmable blockchain, This paves the way to the emerging distributed applications (DApp), which inherits the characteristics of the block chain.
+
+In the case of crowdfunding, traditional crowdfunding platforms often lacks transparency and trust. Once supporters fund a project, they transfer the money to the platform and may then lose track of the money and the progress of the project. In other words, they have great risks of losing their money.
+
+As Ethereum becomes more popular, some crowdfunding DApps have emerged, like Weifund. While indeed, it's a more transparent and safe platform, it does not add new risk control mechanisms. If a project does not go well, supporters cannot retract any portion of their money. And supporters are not involved in the progress of development. Therefore, we want to propose and implement a more interactive and risk-manageable crowdfunding DApp.
 
 \section{Project Overview}
 \label{sec:proj}
 In this project, we design and implement an transparent and interactive crowdfunding distributed application (DApp) based on smart contract of the Ethereum Blockchain. The DApp has the following functionality:
 \begin{itemize}
-    \item \textbf{Basic crowdfunding}: Project manager can raise fund for the project. Anyone who supports the project are the backers and shall have the reward when the project succeeds. The project only begins if raised funding is larger than a threshold.
+    \item \textbf{Basic crowdfunding}: Project manager can raise fund for the project. Anyone who supports the project are the backers (supporters) and shall have the reward when the project succeeds. The project only begins if raised funding is larger than a threshold.
     \item \textbf{Insurance mechanism}: The project manager cannot get all the raised funding at once. Instead, The project is divided into several phases and only a portion of the funding is usable for one particular phase. The remaining money serves as the insurance. Once a phase is complete, backers can vote whether to continue the project or withdraw their money from the insurance.
     \item \textbf{Tradable share}: Backers can sell their share in the project for any price (as long as someone else would like to buy). They can sell at a higher price for profits or lower price if they lose confidence and want to reduce their loss.
 \end{itemize}
 
+
 we build a test chain and ...
+
+While there are some existing crowdfunding projects, they only cover the basic crowdfunding functionality mentioned above. Therefore, we only referred to guide to basic smart contract syntax and examples, test block and web interface, as shown below: 
+\begin{itemize}
+    \item \href{https://solidity-cn.readthedocs.io/zh/develop/}{Official Solidity documentation}
+    \item \href{https://www.bilibili.com/video/BV1St411a7Pk?from=search&seid=14561516389879407384}{Video guide to smart contract at bilibili}
+    \item 
+\end{itemize}
+And write our code from scratch.
 
 % \subsection{Block Chain and Ethereum}
 % A block chain is a distributed transaction database shared by all nodes participating in a system based on a certain protocol. A full copy of a currency's block chain contains every transaction ever executed in the currency. With this information, one can find out how much value belonged to each address at any point in history.
