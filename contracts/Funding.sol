@@ -91,7 +91,8 @@ contract Funding {
 
     function refund() public closed {
         require(raisedMoney >= fundingGoal, "Enough funding has been raised.");
-        for(address backer: backers){
+        for (uint256 i = 0; i < backers.length; i++) {
+            address backer = backers[i];
             backer.transfer(accounts[backer]);
         }
         selfdestruct(manager);
