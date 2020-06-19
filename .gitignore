@@ -1,2 +1,4 @@
 /report/*
 submission/
+Dapp/app/node_modules
+Dapp/build
