@@ -13,7 +13,8 @@ contract InsuredFunding is Funding {
         mapping(address => bool) votes;
         mapping(address => bool) vetos;
     }
-    Request[] public requests;
+    mapping(uint256 => Request) public requests;
+    uint256 public rid = 0;
     uint256 public usedMoney = 0;
     uint256 public minDuration = 100;
 
@@ -25,29 +26,23 @@ contract InsuredFunding is Funding {
 
     modifier noRequest {
         require(
-            requests.length == 0 || requests[requests.length - 1].processed,
+            requests[rid].endTime == 0 || requests[rid].processed,
             "There is already an open claim request"
         );
         _;
     }
 
     modifier openReq {
-        require(
-            requests.length > 0 && requests[requests.length - 1].endTime >= now,
-            "No open request"
-        );
+        require(requests[rid].endTime >= now, "No open request");
         _;
     }
 
     modifier pendingResult {
         require(
-            requests.length > 0 && requests[requests.length - 1].endTime < now,
+            requests[rid].endTime > 0 && requests[rid].endTime < now,
             "Vote has not finished."
         );
-        require(
-            !requests[requests.length - 1].processed,
-            "Request has been processed"
-        );
+        require(!requests[rid].processed, "Request has been processed");
         _;
     }
 
@@ -63,7 +58,7 @@ contract InsuredFunding is Funding {
         require(duration >= minDuration, "ballot duration should be longer.");
         uint256 cur = now;
         Request memory r = Request(cur, cur + duration, amount, false, 0, 0);
-        requests.push(r);
+        requests[rid] = r;
     }
 
     /**
@@ -71,7 +66,7 @@ contract InsuredFunding is Funding {
      */
     function vote(bool agree) public openReq {
         require(accounts[msg.sender] > 0, "Only backers can vote.");
-        Request storage r = requests[requests.length - 1];
+        Request storage r = requests[rid];
         require(
             !r.votes[msg.sender] && !r.vetos[msg.sender],
             "You have voted."
@@ -92,13 +87,14 @@ contract InsuredFunding is Funding {
      * all the remaining money is returned to the backers
      */
     function completeReq() public closed pendingResult {
-        Request storage r = requests[requests.length - 1];
+        Request storage r = requests[rid];
         // more vote than veto
         if (r.numVeto <= backers.length - r.numVeto) {
             // address payable addr = address(uint160(manager));
             manager.transfer(r.amount);
             usedMoney += r.amount;
             r.processed = true;
+            rid += 1;
         } else {
             // funded project rejected
             // return remaining money
