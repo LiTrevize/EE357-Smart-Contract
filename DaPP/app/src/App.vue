@@ -67,7 +67,7 @@
             label="Request"
             ></v-text-field>
             <v-btn @click="postRequest">postRequest</v-btn>
-            <v-btn @click="getRequest">Complete</v-btn>
+            <v-btn @click="completeReq">Complete</v-btn>
           </v-expansion-panel-content>
         
       </v-expansion-panel>
@@ -256,7 +256,7 @@
                     </v-list-item>
                   </v-list-item-group>
                   <v-row>
-                    <v-col><v-btn>Vote</v-btn></v-col>
+                    <v-col><v-btn @click="allVotes">Vote</v-btn></v-col>
                   </v-row>
                 </v-card>
               </v-col>
@@ -419,10 +419,27 @@ export default {
         console.log(err);
       });
     },
-    vote() {
+    completeReq() {
+      const { completeReq } = this.meta.methods;
+      completeReq().call().then(res => {
+        console.log("Complete!");
+      },err => {
+        console.log(err);
+      });
+    },
+    allVotes() {
+      for(let i = 0; i < this.accounts.length; i++)
+      {
+        if(i in this.Insured.select)
+          this.vote(i, true);
+        else
+          this.vote(i, false);
+      }
+    },
+    vote(i, v) {
       const { vote } = this.meta.methods;
-      vote(true).send({from: this.accounts[0]}).then(res => {
-        console.log("hello");
+      vote(v).send({from: this.accounts[i]}).then(res => {
+        console.log("Vote!");
       }, 
       err => {
         console.log(err);
@@ -471,18 +488,17 @@ export default {
     buyShares() {
       for(let i of this.Trade.select)
       {
-        //console.log(i);
         const sale = this.Trade.sales[i];
-        //console.log(sale);
-        this.buyShare(sale.address, sale.price);
+        this.buyShare(sale.address, sale.price, i);
       }
     },
-    buyShare(address, price) {
+    buyShare(address, price, i) {
       const { buyShare } = this.meta.methods;
       console.log(price);
       buyShare(address).send({from: this.Trade.account, value: price}).then(res=>{
         this.getSupport(address);
         this.getSupport(this.Trade.account);
+        this.Trade.sales.splice(i,1);
       },err=>{
         console.log(err);
       });
